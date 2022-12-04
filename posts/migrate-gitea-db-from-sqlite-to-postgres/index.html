@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ja" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>GiteaのデータベースをSQliteからPostgreSQLに移行する - 備忘録</title>
+  <meta name="description" content="この記事では， Gitea の運用を開始したあとに，データベースをデフォルトのSQLiteからPostgreSQLに移行する手順を説明します。 環境 OS: Windows 10"><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "備忘録",
+    
+    "url": "http:\/\/localhost:8000"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "http:\/\/localhost:8000"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "http:\/\/localhost:8000",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "http:\/\/localhost:8000\/posts\/migrate-gitea-db-from-sqlite-to-postgres\/",
+          "name": "Giteaのデータベースを sqliteから postgre sqlに移行する"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : ""
+  },
+  "headline": "GiteaのデータベースをSQliteからPostgreSQLに移行する",
+  "description" : "この記事では， Gitea の運用を開始したあとに，データベースをデフォルトのSQLiteからPostgreSQLに移行する手順を説明します。 環境 OS: Windows 10",
+  "inLanguage" : "ja",
+  "wordCount":  1705 ,
+  "datePublished" : "2022-12-04T00:00:00",
+  "dateModified" : "2022-12-04T00:00:00",
+  "image" : "http:\/\/localhost:8000",
+  "keywords" : [ "Gitea, Docker" ],
+  "mainEntityOfPage" : "http:\/\/localhost:8000\/posts\/migrate-gitea-db-from-sqlite-to-postgres\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "http:\/\/localhost:8000",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "http:\/\/localhost:8000",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="GiteaのデータベースをSQliteからPostgreSQLに移行する" />
+<meta property="og:description" content="この記事では， Gitea の運用を開始したあとに，データベースをデフォルトのSQLiteからPostgreSQLに移行する手順を説明します。 環境 OS: Windows 10">
+<meta property="og:url" content="http://localhost:8000/posts/migrate-gitea-db-from-sqlite-to-postgres/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="備忘録" />
+
+  <meta name="twitter:title" content="GiteaのデータベースをSQliteからPostgreSQLに移行する" />
+  <meta name="twitter:description" content="この記事では， Gitea の運用を開始したあとに，データベースをデフォルトのSQLiteからPostgreSQLに移行する手順を説明します。 環境 OS: Windows 10">
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="generator" content="Hugo 0.107.0">
+  <link rel="alternate" href="http://localhost:8000/index.xml" type="application/rss+xml" title="備忘録"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><link rel="stylesheet" href="http://localhost:8000/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="http://localhost:8000/css/highlight.min.css" /><link rel="stylesheet" href="http://localhost:8000/css/codeblock.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">メニューを切り替え</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="http://localhost:8000">備忘録</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="タグ一覧" href="/tags">タグ一覧</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    
+
+  </div>
+</nav>
+
+
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="posts-heading">
+              
+                <h1>GiteaのデータベースをSQliteからPostgreSQLに移行する</h1>
+              
+              
+                <hr class="small">
+              
+              
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+
+        <h2>目次</h2>
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#_環境">環境</a></li>
+    <li><a href="#_移行元のデータをダンプ">移行元のデータをダンプ</a></li>
+    <li><a href="#_移行先にデータをリストア">移行先にデータをリストア</a>
+      <ol>
+        <li><a href="#_データベースのデータ">データベースのデータ</a></li>
+        <li><a href="#_giteaのデータ">Giteaのデータ</a></li>
+      </ol>
+    </li>
+    <li><a href="#_動作確認">動作確認</a></li>
+    <li><a href="#_参考文献">参考文献</a></li>
+  </ol>
+</nav>
+
+        
+<div class="paragraph">
+<p>この記事では， <a href="https://gitea.io/ja-jp/">Gitea</a> の運用を開始したあとに，データベースをデフォルトのSQLiteからPostgreSQLに移行する手順を説明します。</p>
+</div>
+<div class="sect1">
+<h2 id="_環境">環境</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>OS: Windows 10 Home 21H2</p>
+</li>
+<li>
+<p>WSL: Ubuntu 18.04.6 LTS</p>
+</li>
+<li>
+<p>Docker: Docker Desktop 4.12.0</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>移行元と移行先のGiteaの環境はそれぞれ以下のDocker Composeファイルで構築しています。
+いずれもGiteaのドキュメント <sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup> に掲載されているものをそのまま使用しています。</p>
+</div>
+<div class="listingblock">
+<div class="title">移行元 (gitea-with-sqlite/docker-compose.yml)</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="yml"><span class="na">version</span><span class="pi">:</span> <span class="s2">&#34;</span><span class="s">3&#34;</span>
+
+<span class="na">networks</span><span class="pi">:</span>
+  <span class="na">gitea</span><span class="pi">:</span>
+    <span class="na">external</span><span class="pi">:</span> <span class="no">false</span>
+
+<span class="na">volumes</span><span class="pi">:</span>
+  <span class="na">gitea</span><span class="pi">:</span>
+    <span class="na">driver</span><span class="pi">:</span> <span class="s">local</span>
+
+<span class="na">services</span><span class="pi">:</span>
+  <span class="na">server</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">gitea/gitea:1.17.3</span>
+    <span class="na">container_name</span><span class="pi">:</span> <span class="s">gitea-with-sqlite</span>
+    <span class="na">restart</span><span class="pi">:</span> <span class="s2">&#34;</span><span class="s">no&#34;</span>
+    <span class="na">networks</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">gitea</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">gitea:/data</span>
+      <span class="pi">-</span> <span class="s">/etc/timezone:/etc/timezone:ro</span>
+      <span class="pi">-</span> <span class="s">/etc/localtime:/etc/localtime:ro</span>
+    <span class="na">ports</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">&#34;</span><span class="s">3000:3000&#34;</span>
+      <span class="pi">-</span> <span class="s2">&#34;</span><span class="s">222:22&#34;</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">移行先 (gitea-with-postgres/docker-compose.yml)</div>
+<div class="content">
+<pre class="rouge highlight"><code data-lang="yml"><span class="na">version</span><span class="pi">:</span> <span class="s2">&#34;</span><span class="s">3&#34;</span>
+
+<span class="na">networks</span><span class="pi">:</span>
+  <span class="na">gitea</span><span class="pi">:</span>
+    <span class="na">external</span><span class="pi">:</span> <span class="no">false</span>
+
+<span class="na">volumes</span><span class="pi">:</span>
+  <span class="na">gitea</span><span class="pi">:</span>
+    <span class="na">driver</span><span class="pi">:</span> <span class="s">local</span>
+  <span class="na">postgres</span><span class="pi">:</span>
+    <span class="na">driver</span><span class="pi">:</span> <span class="s">local</span>
+
+<span class="na">services</span><span class="pi">:</span>
+  <span class="na">server</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">gitea/gitea:1.17.3</span>
+    <span class="na">container_name</span><span class="pi">:</span> <span class="s">gitea-with-postgres</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">USER_UID=1000</span>
+      <span class="pi">-</span> <span class="s">USER_GID=1000</span>
+      <span class="pi">-</span> <span class="s">GITEA__database__DB_TYPE=postgres</span>
+      <span class="pi">-</span> <span class="s">GITEA__database__HOST=db:5432</span>
+      <span class="pi">-</span> <span class="s">GITEA__database__NAME=gitea</span>
+      <span class="pi">-</span> <span class="s">GITEA__database__USER=gitea</span>
+      <span class="pi">-</span> <span class="s">GITEA__database__PASSWD=gitea</span>
+    <span class="na">restart</span><span class="pi">:</span> <span class="s2">&#34;</span><span class="s">no&#34;</span>
+    <span class="na">networks</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">gitea</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">gitea:/data</span>
+      <span class="pi">-</span> <span class="s">/etc/timezone:/etc/timezone:ro</span>
+      <span class="pi">-</span> <span class="s">/etc/localtime:/etc/localtime:ro</span>
+    <span class="na">ports</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">&#34;</span><span class="s">3000:3000&#34;</span>
+      <span class="pi">-</span> <span class="s2">&#34;</span><span class="s">222:22&#34;</span>
+    <span class="na">depends_on</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">db</span>
+
+  <span class="na">db</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">postgres:14</span>
+    <span class="na">container_name</span><span class="pi">:</span> <span class="s">postgres</span>
+    <span class="na">restart</span><span class="pi">:</span> <span class="s2">&#34;</span><span class="s">no&#34;</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">POSTGRES_USER=gitea</span>
+      <span class="pi">-</span> <span class="s">POSTGRES_PASSWORD=gitea</span>
+      <span class="pi">-</span> <span class="s">POSTGRES_DB=gitea</span>
+    <span class="na">networks</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">gitea</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">postgres:/var/lib/postgresql/data</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_移行元のデータをダンプ">移行元のデータをダンプ</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>以下のコマンド <sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnotedef_2" title="View footnote.">2</a>]</sup> で移行元のSQLiteおよびGiteaの各種データをダンプします。</p>
+</div>
+<div class="paragraph">
+<p>ここで，Giteaの<code>dump</code>コマンドを実行するとき，<code>--database postgres</code>を指定するのがポイントです。
+こうすることで，データベースのデータがPostgreSQLの構文でダンプされるため，PostgreSQLにインポートすることが可能になります。</p>
+</div>
+<div class="paragraph">
+<p>なお，このコマンドを実行するときは，移行元のGiteaのDockerコンテナが実行中である必要があります。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="c"># ダンプを実行</span>
+<span class="c"># データベースのデータはPostgreSQLの構文でダンプする</span>
+docker <span class="nb">exec</span> <span class="nt">-it</span> <span class="se">\</span>
+    <span class="nt">-u</span> git <span class="se">\</span>
+    <span class="nt">-w</span> /tmp <span class="se">\</span>
+    gitea-with-sqlite <span class="se">\</span>
+    bash <span class="nt">-c</span> <span class="s1">&#39;/usr/local/bin/gitea dump --config /data/gitea/conf/app.ini --database postgres --file gitea-dump.zip&#39;</span>
+
+<span class="c"># ダンプしたファイルを保存するディレクトリを作成</span>
+<span class="nb">mkdir</span> <span class="nt">-p</span> ./gitea-backup
+<span class="c"># ダンプしたファイルをホストにコピー</span>
+docker <span class="nb">cp </span>gitea-with-sqlite:/tmp/gitea-dump.zip ./gitea-backup/</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+上記のコマンドはWSLで実行する必要があります。Git Bashで実行すると<code>OCI runtime exec failed: exec failed: Cwd must be an absolute path: unknown</code>というエラーが発生します。
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_移行先にデータをリストア">移行先にデータをリストア</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>ダンプしたデータを以下のコマンドで移行先にリストアします。</p>
+</div>
+<div class="sect2">
+<h3 id="_データベースのデータ">データベースのデータ</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="c"># PostgreSQLのコンテナを起動</span>
+<span class="nb">pushd </span>gitea-with-postgres
+docker compose up <span class="nt">--detach</span> db
+<span class="nb">popd</span>
+
+<span class="c"># ダンプしたSQLファイルをコンテナにコピー</span>
+<span class="nb">pushd </span>gitea-backup
+unzip gitea-dump.zip
+docker <span class="nb">cp</span> ./gitea-db.sql postgres:/tmp
+<span class="nb">popd</span>
+
+<span class="c"># 実行中のコンテナに接続</span>
+docker <span class="nb">exec</span> <span class="nt">-it</span> postgres bash
+<span class="c"># データベースに接続する</span>
+<span class="c"># 接続先を指定しないと&#34;gitea&#34;データベースに接続してしまい削除できなくなるので，</span>
+<span class="c"># 適当に別のデータベースに接続する</span>
+psql <span class="nt">-U</span> gitea <span class="nt">-d</span> postgres
+<span class="c"># Docker Composeファイルの設定で既に&#34;gitea&#34;データベースを作成済みなので，</span>
+<span class="c"># いったん削除してから再度作成する</span>
+drop database gitea<span class="p">;</span>
+create database gitea<span class="p">;</span>
+<span class="nb">exit</span><span class="p">;</span>
+<span class="c"># SQLファイルをインポート</span>
+psql <span class="nt">-U</span> gitea <span class="nt">-d</span> gitea <span class="nt">-f</span> /tmp/gitea-db.sql
+<span class="c"># コンテナから出る</span>
+<span class="nb">exit
+exit</span>
+
+<span class="c"># PostgreSQLのコンテナを停止</span>
+docker stop postgres</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_giteaのデータ">Giteaのデータ</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="bash"><span class="c"># Giteaのコンテナを起動</span>
+<span class="nb">pushd </span>gitea-with-postgres
+docker compose up <span class="nt">--detach</span>
+<span class="nb">popd</span>
+
+<span class="c"># ダンプしたデータをコンテナにコピー</span>
+<span class="nb">pushd </span>gitea-backup
+docker <span class="nb">cp</span> ./gitea-dump.zip <span class="o">{</span>gitea-with-postgres-docker-container-name<span class="o">}</span>:/tmp
+<span class="nb">popd</span>
+
+<span class="c"># Giteaのコンテナに接続</span>
+docker <span class="nb">exec</span> <span class="nt">-it</span> <span class="o">{</span>gitea-with-postgres-docker-container-name<span class="o">}</span> bash
+<span class="c"># データを展開</span>
+<span class="nb">cd</span> /tmp/
+unzip gitea-dump.zip
+<span class="c"># データを配置</span>
+<span class="nb">rm</span> <span class="nt">-rf</span> /data/gitea
+<span class="nb">mv </span>data/ /data/gitea
+<span class="nb">rm</span> <span class="nt">-rf</span> /data/git/repositories/
+<span class="nb">mv </span>repos/ /data/git/repositories/
+<span class="c"># ファイルの所有者がrootになっているので直す</span>
+<span class="nb">chown</span> <span class="nt">-R</span> git:git /data
+<span class="c"># Gitフックを再生成する</span>
+<span class="c"># Giteaコマンドはrootユーザでは実行できないので，&#34;git&#34;ユーザに切り替える</span>
+su git
+/usr/local/bin/gitea <span class="nt">-c</span> <span class="s1">&#39;/data/gitea/conf/app.ini&#39;</span> admin regenerate hooks
+<span class="c"># Giteaの設定ファイルを開いて，PostgreSQLに接続するよう書き換える。</span>
+<span class="c"># 詳細は次のコードブロックを参照。</span>
+vi /data/gitea/conf/app.ini
+<span class="nb">exit
+exit</span>
+
+<span class="c"># 設定を反映するためにGiteaコンテナを再起動する</span>
+docker compose <span class="nt">-p</span> gitea-with-postgres stop
+docker compose <span class="nt">-p</span> gitea-with-postgres start</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>上記の<code>/data/gitea/conf/app.ini</code>は<code>[database]</code>セクションを以下のとおり書き換えます。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="diff"><span class="p">data/conf/app.ini new-app.ini -U0
+</span><span class="gd">--- gitea-backup/data/conf/app.ini      2022-12-03 23:23:38.249672600 +0900
+</span><span class="gi">+++ new-app.ini 2022-12-03 23:25:31.000000000 +0900
+</span><span class="p">@@ -28,10 +28,7 @@</span>
+<span class="gd">-PATH     = /data/gitea/gitea.db
+-DB_TYPE  = sqlite3
+-HOST     = localhost:3306
+-NAME     = gitea
+-USER     = root
+-PASSWD   =
+-LOG_SQL  = false
+-SCHEMA   =
+-SSL_MODE = disable
+-CHARSET  = utf8
+</span><span class="gi">+PATH    = /data/gitea/gitea.db
++DB_TYPE = postgres
++HOST    = db:5432
++NAME    = gitea
++USER    = gitea
++PASSWD  = gitea
++LOG_SQL = false</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_動作確認">動作確認</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Giteaコンテナの再起動後， <a href="http://localhost:3000/" class="bare">http://localhost:3000/</a> にアクセスし，移行元と同じ内容が表示されていれば，移行に成功しています。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考文献">参考文献</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a href="https://web.archive.org/web/20200812160657/https://inhji.de/blog/migrate-gitea-from-sqlite-to-postgres/">Migrate Gitea from SQLite to Postgres | Inhji.de</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p>この記事の&#34;Fix PostgreSQL Sequences&#34;の章では，<code>SETVAL</code>によりシーケンスの現在値を設定するよう説明されています。しかし，最新のGiteaではダンプしたSQLファイルにこの処理も含まれているため，手動で設定する必要はありません。</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://blog.amedama.jp/entry/2017/06/15/223945">ファイルから SQL を読み込む (MySQL, PostgreSQL, SQLite3) - CUBE SUGAR CONTAINER</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<hr/>
+<div class="footnote" id="_footnotedef_1">
+<a href="#_footnoteref_1">1</a>. <a href="https://docs.gitea.io/en-us/install-with-docker/" class="bare">https://docs.gitea.io/en-us/install-with-docker/</a>
+</div>
+<div class="footnote" id="_footnotedef_2">
+<a href="#_footnoteref_2">2</a>. ダンプを実行するコマンドのフォーマットは <a href="https://docs.gitea.io/en-us/backup-and-restore/#using-docker-dump" class="bare">https://docs.gitea.io/en-us/backup-and-restore/#using-docker-dump</a> を参照ください。
+</div>
+</div>
+
+
+        
+          <div class="blog-tags">
+            
+              <a href="http://localhost:8000/tags/gitea/">Gitea</a>&nbsp;
+            
+              <a href="http://localhost:8000/tags/docker/">Docker</a>&nbsp;
+            
+          </div>
+        
+
+        
+
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+          
+        </ul>
+      
+
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+
+          &nbsp;&bull;&nbsp;&copy;
+          
+            2022
+          
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="http://localhost:8000">備忘録</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          起動力に<a href="https://gohugo.io">Hugo v0.107.0</a> &nbsp;&bull;&nbsp; テーマに<a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>に基づいている<a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer><script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script src="http://localhost:8000/js/main.js"></script>
+<script src="http://localhost:8000/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script><script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script><script src="http://localhost:8000/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+
+
+    
+  </body>
+</html>
+
