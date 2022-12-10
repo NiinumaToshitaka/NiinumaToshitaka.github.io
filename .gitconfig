@@ -1,0 +1,2 @@
+# AsciiDocファイル変換時のキャッシュファイルは管理しない
+.asciidoctor/

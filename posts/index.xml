@@ -6,7 +6,16 @@
     <description>Recent content in Posts on 備忘録</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Sun, 04 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://niinumatoshitaka.github.io./posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 10 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://niinumatoshitaka.github.io./posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Krokiを利用してAsciiDocファイルに図を記述する</title>
+      <link>https://niinumatoshitaka.github.io./posts/draw-diagram-in-asciidoc-using-kroki/</link>
+      <pubDate>Sat, 10 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://niinumatoshitaka.github.io./posts/draw-diagram-in-asciidoc-using-kroki/</guid>
+      <description>この記事では，AsciiDocファイルに図を記述し，Krokiを利用して図が埋め込まれたHTMLファイルを生成する手順を説明します。 図の生成</description>
+    </item>
+    
     <item>
       <title>GiteaのデータベースをSQliteからPostgreSQLに移行する</title>
       <link>https://niinumatoshitaka.github.io./posts/migrate-gitea-db-from-sqlite-to-postgres/</link>

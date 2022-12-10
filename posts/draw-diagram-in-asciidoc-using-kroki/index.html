@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ja" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Krokiを利用してAsciiDocファイルに図を記述する - 備忘録</title>
+  <meta name="description" content="この記事では，AsciiDocファイルに図を記述し，Krokiを利用して図が埋め込まれたHTMLファイルを生成する手順を説明します。 図の生成"><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "備忘録",
+    
+    "url": "https:\/\/niinumatoshitaka.github.io.\/"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/niinumatoshitaka.github.io.\/"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/niinumatoshitaka.github.io.\/",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/niinumatoshitaka.github.io.\/posts\/draw-diagram-in-asciidoc-using-kroki\/",
+          "name": "Krokiを利用して ascii docファイルに図を記述する"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : ""
+  },
+  "headline": "Krokiを利用してAsciiDocファイルに図を記述する",
+  "description" : "この記事では，AsciiDocファイルに図を記述し，Krokiを利用して図が埋め込まれたHTMLファイルを生成する手順を説明します。 図の生成",
+  "inLanguage" : "ja",
+  "wordCount":  2362 ,
+  "datePublished" : "2022-12-10T00:00:00",
+  "dateModified" : "2022-12-10T00:00:00",
+  "image" : "https:\/\/niinumatoshitaka.github.io.\/",
+  "keywords" : [ "AsciiDoc, PlantUML, Mermaid, Docker, Kroki" ],
+  "mainEntityOfPage" : "https:\/\/niinumatoshitaka.github.io.\/posts\/draw-diagram-in-asciidoc-using-kroki\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/niinumatoshitaka.github.io.\/",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/niinumatoshitaka.github.io.\/",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Krokiを利用してAsciiDocファイルに図を記述する" />
+<meta property="og:description" content="この記事では，AsciiDocファイルに図を記述し，Krokiを利用して図が埋め込まれたHTMLファイルを生成する手順を説明します。 図の生成">
+<meta property="og:url" content="https://niinumatoshitaka.github.io./posts/draw-diagram-in-asciidoc-using-kroki/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="備忘録" />
+
+  <meta name="twitter:title" content="Krokiを利用してAsciiDocファイルに図を記述する" />
+  <meta name="twitter:description" content="この記事では，AsciiDocファイルに図を記述し，Krokiを利用して図が埋め込まれたHTMLファイルを生成する手順を説明します。 図の生成">
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="generator" content="Hugo 0.107.0">
+  <link rel="alternate" href="https://niinumatoshitaka.github.io./index.xml" type="application/rss+xml" title="備忘録"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><link rel="stylesheet" href="https://niinumatoshitaka.github.io./css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://niinumatoshitaka.github.io./css/highlight.min.css" /><link rel="stylesheet" href="https://niinumatoshitaka.github.io./css/codeblock.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">メニューを切り替え</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://niinumatoshitaka.github.io./">備忘録</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="タグ一覧" href="/tags">タグ一覧</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    
+
+  </div>
+</nav>
+
+
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="posts-heading">
+              
+                <h1>Krokiを利用してAsciiDocファイルに図を記述する</h1>
+              
+              
+                <hr class="small">
+              
+              
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+
+        <h2>目次</h2>
+        <nav id="TableOfContents">
+  <ol>
+    <li><a href="#_環境">環境</a></li>
+    <li><a href="#_ファイル構成">ファイル構成</a></li>
+    <li><a href="#_wslでフォルダを開く">WSLでフォルダを開く</a></li>
+    <li><a href="#_vscodeに拡張機能をインストール">vscodeに拡張機能をインストール</a></li>
+    <li><a href="#_asciidoc拡張機能を設定">AsciiDoc拡張機能を設定</a></li>
+    <li><a href="#_krokiサーバを起動するdocker_composeファイルを作成">Krokiサーバを起動するDocker Composeファイルを作成</a></li>
+    <li><a href="#_vscodeでフォルダを開いたときに自動的にkrokiサーバを起動する">vscodeでフォルダを開いたときに自動的にKrokiサーバを起動する</a></li>
+    <li><a href="#_asciidocファイルを作成">AsciiDocファイルを作成</a></li>
+    <li><a href="#_asciidocファイルのプレビューを表示">AsciiDocファイルのプレビューを表示</a></li>
+    <li><a href="#_asciidocファイルをhtmlファイルに変換">AsciiDocファイルをHTMLファイルに変換</a></li>
+    <li><a href="#_参考文献">参考文献</a></li>
+  </ol>
+</nav>
+
+        
+<div class="paragraph">
+<p>この記事では，AsciiDocファイルに図を記述し，Krokiを利用して図が埋め込まれたHTMLファイルを生成する手順を説明します。
+図の生成にはKrokiのDockerコンテナを使用するため，vscodeのタスク機能を利用して，フォルダを開いたときにコンテナを自動的に起動するよう設定します。</p>
+</div>
+<div class="sect1">
+<h2 id="_環境">環境</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1">OS</dt>
+<dd>
+<p>Windows 10 Home 21H2</p>
+</dd>
+<dt class="hdlist1">WSL</dt>
+<dd>
+<p>Ubuntu 18.04.6 LTS</p>
+</dd>
+<dt class="hdlist1">Docker</dt>
+<dd>
+<p>Docker Desktop 4.12.0</p>
+</dd>
+<dt class="hdlist1">Visual Studio Code (vscode)</dt>
+<dd>
+<p>1.73.1</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ファイル構成">ファイル構成</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cドライブの直下に作成した<code>doc</code>フォルダ内に，この記事で使用するファイルを配置します。
+ファイル構成は以下のとおりです。</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>C:\doc
+├── .vscode
+│   ├── settings.json
+│   └── tasks.json
+├── build.sh
+├── docker-compose.yml
+└── sample.adoc</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_wslでフォルダを開く">WSLでフォルダを開く</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>vscodeを起動します。</p>
+</li>
+<li>
+<p><kbd>F1</kbd> → <em>WSL: WSL でフォルダーを開く…​</em> を選択します。</p>
+</li>
+<li>
+<p><code>C:\doc</code>を選択します。</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_vscodeに拡張機能をインストール">vscodeに拡張機能をインストール</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>vscodeの拡張機能タブから，以下の拡張機能をインストールします。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://marketplace.visualstudio.com/items?itemName=asciidoctor.asciidoctor-vscode">AsciiDoc</a></p>
+</li>
+<li>
+<p><a href="https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker">Docker</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_asciidoc拡張機能を設定">AsciiDoc拡張機能を設定</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>KrokiはPlantUMLやMermaidなど様々な形式のテキストから図を生成するサーバアプリケーションです。</p>
+</div>
+<div class="paragraph">
+<p>図の生成に使用するKrokiサーバは，インターネットで公開されているものを使用するほか，ローカルに立てて使用することもできます。
+ここではインターネットにデータを送信せずに作図するために，ローカルにKrokiサーバを立てます。</p>
+</div>
+<div class="paragraph">
+<p>Krokiサーバを立てるのは以降の手順で行いますが，AsciiDoc拡張機能がこのKrokiサーバを使用するように，先に<code>.vscode/settings.json</code>に以下を追加します。</p>
+</div>
+<div class="listingblock">
+<div class="title">.vscode/settings.json</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+    // AsciiDocファイルの変換にAsciidoctor.jsを使用する
+    &#34;asciidoc.use_asciidoctor_js&#34;: true,
+    // 図の生成にKrokiを使用する
+    &#34;asciidoc.use_kroki&#34;: true,
+    &#34;asciidoc.preview.attributes&#34;: {
+        // プレビュー時に図の生成に使用するKrokiサーバのURLを指定する
+        &#34;kroki-server-url&#34;: &#34;http://localhost:8000&#34;
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_krokiサーバを起動するdocker_composeファイルを作成">Krokiサーバを起動するDocker Composeファイルを作成</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>KrokiサーバはDockerコンテナとして実行します。
+よって，<code>docker-compose.yml</code>として以下を作成します。</p>
+</div>
+<div class="paragraph">
+<p>なお，このファイルの内容は <a href="https://docs.kroki.io/kroki/setup/use-docker-or-podman/#_run_multiple_kroki_containers_together">Using Docker or Podman :: Kroki Documentation</a> の <em>Example of running them all together</em> に記載されている<code>docker-compose.yml</code>の内容から <code>blockdiag</code>, <code>bpmn</code>, <code>excalidraw</code> の定義を削除したものです。</p>
+</div>
+<div class="listingblock">
+<div class="title">docker-compose.yml</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">version: &#34;3&#34;
+services:
+  kroki:
+    container_name: kroki
+    image: yuzutech/kroki
+    depends_on:
+      - mermaid
+    environment:
+      - KROKI_MERMAID_HOST=mermaid
+    ports:
+      - &#34;8000:8000&#34;
+  mermaid:
+    container_name: kroki-mermaid
+    image: yuzutech/kroki-mermaid
+    expose:
+      - &#34;8002&#34;</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_vscodeでフォルダを開いたときに自動的にkrokiサーバを起動する">vscodeでフォルダを開いたときに自動的にKrokiサーバを起動する</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>vscodeでAsciiDocファイルを格納したフォルダを開いたときに自動的にKrokiサーバが起動すると便利なので，<code>.vscode/tasks.json</code><a href="#tasks-in-vscode">[3]</a><a href="#docker-compose-task-in-vscode">[4]</a>に以下を記述します。</p>
+</div>
+<div class="listingblock">
+<div class="title">.vscode/tasks.json</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+    &#34;version&#34;: &#34;2.0.0&#34;,
+    &#34;tasks&#34;: [
+        {
+            // タスクの名前
+            &#34;label&#34;: &#34;Run docker-compose up&#34;,
+            // タスクの種類
+            &#34;type&#34;: &#34;docker-compose&#34;,
+            // Docker Compose実行時のオプションを指定
+            &#34;dockerCompose&#34;: {
+                &#34;up&#34;: {
+                    &#34;detached&#34;: true
+                },
+                &#34;files&#34;: [
+                    &#34;${workspaceFolder}/docker-compose.yml&#34;
+                ],
+                &#34;projectName&#34;: &#34;kroki-server&#34;
+            },
+            &#34;runOptions&#34;: {
+                // フォルダを開いたときに自動的に実行する
+                &#34;runOn&#34;: &#34;folderOpen&#34;
+            }
+        }
+    ]
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>フォルダを閉じて再度フォルダ開きます。
+タスクの自動実行を許可するか尋ねられるので，「許可して実行」を選択します。</p>
+</div>
+<div class="paragraph">
+<p>ここで選択しなかった場合， <kbd>F1</kbd> → <em>タスク: フォルダー内の自動タスクの管理</em> → <em>フォルダーで自動タスクを許可する</em> を選択しても同様に設定できます。</p>
+</div>
+<div class="paragraph">
+<p>上記を実施すると，<code>.vscode/settings.json</code>に以下が追加されます。</p>
+</div>
+<div class="listingblock">
+<div class="title">.vscode/settings.json</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  &#34;task.allowAutomaticTasks&#34;: &#34;on&#34;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Webブラウザで <a href="http://localhost:8000/" class="bare">http://localhost:8000/</a> にアクセスし，Krokiのページが表示されることを確認します。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_asciidocファイルを作成">AsciiDocファイルを作成</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>AsciiDocファイルにPlantUMLとMermaidの図を埋め込むには，以下のように記述します。</p>
+</div>
+<div class="listingblock">
+<div class="title">sample.adoc</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-adoc hljs" data-lang="adoc">= AsciiDocファイルに図を記述するテスト
+
+// 図を出力するディレクトリ
+// 図はhtmlファイルに埋め込むので保存する必要がない
+:imagesoutdir: .asciidoctor
+// 図のキャッシュファイルを配置するディレクトリ
+:diagram-cachedir: .asciidoctor
+
+[plantuml]
+----
+actor アリス
+actor ボブ
+アリス -&gt; ボブ: こんにちは
+----
+
+[mermaid]
+----
+sequenceDiagram
+    actor アリス
+    actor ボブ
+    アリス-&gt;&gt;ボブ: こんにちは
+----</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_asciidocファイルのプレビューを表示">AsciiDocファイルのプレビューを表示</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>デフォルトではKrokiサーバのように外部から取得したデータをプレビューに埋め込むことはできないので，vscodeで<code>sample.adoc</code>のタブをアクティブにした状態で， <kbd>F1</kbd> → <em>AsciiDoc: Change Preview Security Settings</em> → <em>Allow insecure local content</em> を選択します。</p>
+</div>
+<div class="paragraph">
+<p>この状態で画面右上の <em>Open Preview to the Side</em> ボタンをクリックするか， <kbd>F1</kbd> → <em>AsciiDoc: Open Preview to the Side</em> を選択すると，プレビューが表示されます。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_asciidocファイルをhtmlファイルに変換">AsciiDocファイルをHTMLファイルに変換</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>build.sh</code>として以下を作成します。</p>
+</div>
+<div class="listingblock">
+<div class="title">build.sh</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">#!/bin/bash
+
+docker run --rm -it \
+    -v $(pwd):/documents/ \ # <b class="conum">(1)</b>
+    --network kroki-server_default \ # <b class="conum">(2)</b>
+    asciidoctor/docker-asciidoctor:1.28 \
+    asciidoctor \
+        -r asciidoctor-kroki \ # <b class="conum">(3)</b>
+        -a data-uri -a allow-uri-read \ # <b class="conum">(4)</b>
+        sample.adoc</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>カレントディレクトリをコンテナ内の<code>/documents</code>ディレクトリにマウントします。</p>
+</li>
+<li>
+<p>コンテナをKrokiサーバのDockerコンテナネットワークに接続します。<code>.vscode/tasks.json</code>で<code>projectName</code>に<code>kroki-server</code>を指定しているため，<code>kroki-server_default</code>というネットワーク名で接続できます。</p>
+</li>
+<li>
+<p>Krokiで生成した図を使用するために，Asciidoctorの拡張機能である<code>asciidoctor-kroki</code>を使用します。この拡張機能は本来はAsciidoctorとは別にインストールしておく必要がありますが，<code>asciidoctor/docker-asciidoctor</code>イメージには既にインストールされています。</p>
+</li>
+<li>
+<p>AsciiDocファイルに<code>data-uri</code>と<code>allow-uri-read</code>を定義しても反映されないため，<code>asciidoctor</code>コマンド実行時に定義します。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>作成したら実行します。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">bash build.sh</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>実行すると以下の<code>sample.html</code>が生成されます。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="data:image/png;base64,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" alt="generated page"/>
+</div>
+<div class="title">図 1. sample.html</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考文献">参考文献</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a id="write-asciidoc-with-docker"></a>[1] <a href="https://wohl-yz.net/archives/1683">Docker版 仕様書が書きたくなるAsciiDoc Markdown風にドキュメント作成 | 合同会社ヴォール</a></p>
+</li>
+<li>
+<p><a id="setup-kroki-use-docker"></a>[2] <a href="https://docs.kroki.io/kroki/setup/use-docker-or-podman/">Using Docker or Podman :: Kroki Documentation</a></p>
+</li>
+<li>
+<p><a id="tasks-in-vscode"></a>[3] <a href="https://code.visualstudio.com/docs/editor/tasks">Tasks in Visual Studio Code</a></p>
+</li>
+<li>
+<p><a id="docker-compose-task-in-vscode"></a>[4] <a href="https://code.visualstudio.com/docs/containers/reference#_docker-compose-task">Reference for Visual Studio Code Docker extension properties and tasks.</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://niinumatoshitaka.github.io.//tags/asciidoc/">AsciiDoc</a>&nbsp;
+            
+              <a href="https://niinumatoshitaka.github.io.//tags/plantuml/">PlantUML</a>&nbsp;
+            
+              <a href="https://niinumatoshitaka.github.io.//tags/mermaid/">Mermaid</a>&nbsp;
+            
+              <a href="https://niinumatoshitaka.github.io.//tags/docker/">Docker</a>&nbsp;
+            
+              <a href="https://niinumatoshitaka.github.io.//tags/kroki/">Kroki</a>&nbsp;
+            
+          </div>
+        
+
+        
+
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://niinumatoshitaka.github.io./posts/migrate-gitea-db-from-sqlite-to-postgres/" data-toggle="tooltip" data-placement="top" title="GiteaのデータベースをSQliteからPostgreSQLに移行する">&larr; 前ページ</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+
+          &nbsp;&bull;&nbsp;&copy;
+          
+            2022
+          
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://niinumatoshitaka.github.io./">備忘録</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          起動力に<a href="https://gohugo.io">Hugo v0.107.0</a> &nbsp;&bull;&nbsp; テーマに<a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>に基づいている<a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer><script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script src="https://niinumatoshitaka.github.io./js/main.js"></script>
+<script src="https://niinumatoshitaka.github.io./js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script><script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script><script src="https://niinumatoshitaka.github.io./js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+
+
+    
+  </body>
+</html>
+

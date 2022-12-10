@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>AsciiDoc on 備忘録</title>
+    <link>https://niinumatoshitaka.github.io./tags/asciidoc/</link>
+    <description>Recent content in AsciiDoc on 備忘録</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja</language>
+    <lastBuildDate>Sat, 10 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://niinumatoshitaka.github.io./tags/asciidoc/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Krokiを利用してAsciiDocファイルに図を記述する</title>
+      <link>https://niinumatoshitaka.github.io./posts/draw-diagram-in-asciidoc-using-kroki/</link>
+      <pubDate>Sat, 10 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://niinumatoshitaka.github.io./posts/draw-diagram-in-asciidoc-using-kroki/</guid>
+      <description>この記事では，AsciiDocファイルに図を記述し，Krokiを利用して図が埋め込まれたHTMLファイルを生成する手順を説明します。 図の生成</description>
+    </item>
+    
+  </channel>
+</rss>
