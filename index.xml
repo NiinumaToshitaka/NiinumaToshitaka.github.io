@@ -6,7 +6,16 @@
     <description>Recent content on 備忘録</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Sat, 10 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://niinumatoshitaka.github.io./index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 30 Dec 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://niinumatoshitaka.github.io./index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Jenkinsのジョブを別のマシンで実行する</title>
+      <link>https://niinumatoshitaka.github.io./posts/run-jenkins-jobs-on-agent/</link>
+      <pubDate>Fri, 30 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://niinumatoshitaka.github.io./posts/run-jenkins-jobs-on-agent/</guid>
+      <description>この記事では，Jenkinsエージェントを使用して，Jenkinsをインストールしたマシンとは別のマシンでジョブを実行する手順を説明します。</description>
+    </item>
+    
     <item>
       <title>Krokiを利用してAsciiDocファイルに図を記述する</title>
       <link>https://niinumatoshitaka.github.io./posts/draw-diagram-in-asciidoc-using-kroki/</link>
@@ -22,7 +31,7 @@
       <pubDate>Sun, 04 Dec 2022 00:00:00 +0000</pubDate>
       
       <guid>https://niinumatoshitaka.github.io./posts/migrate-gitea-db-from-sqlite-to-postgres/</guid>
-      <description>この記事では， Gitea の運用を開始したあとに，データベースをデフォルトのSQLiteからPostgreSQLに移行する手順を説明します。 環境 OS: Windows 10</description>
+      <description>この記事では， Gitea の運用を開始したあとに，データベースをデフォルトのSQLiteからPostgreSQLに移行する手順を説明します。 1. 環境 OS: Windows</description>
     </item>
     
   </channel>

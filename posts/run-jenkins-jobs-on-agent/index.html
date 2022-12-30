@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ja" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Jenkinsのジョブを別のマシンで実行する - 備忘録</title>
+  <meta name="description" content="この記事では，Jenkinsエージェントを使用して，Jenkinsをインストールしたマシンとは別のマシンでジョブを実行する手順を説明します。"><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "備忘録",
+    
+    "url": "https:\/\/niinumatoshitaka.github.io.\/"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/niinumatoshitaka.github.io.\/"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/niinumatoshitaka.github.io.\/",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/niinumatoshitaka.github.io.\/posts\/run-jenkins-jobs-on-agent\/",
+          "name": "Jenkinsのジョブを別のマシンで実行する"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : ""
+  },
+  "headline": "Jenkinsのジョブを別のマシンで実行する",
+  "description" : "この記事では，Jenkinsエージェントを使用して，Jenkinsをインストールしたマシンとは別のマシンでジョブを実行する手順を説明します。",
+  "inLanguage" : "ja",
+  "wordCount":  2820 ,
+  "datePublished" : "2022-12-30T00:00:00",
+  "dateModified" : "2022-12-30T00:00:00",
+  "image" : "https:\/\/niinumatoshitaka.github.io.\/",
+  "keywords" : [ "Jenkins, Docker" ],
+  "mainEntityOfPage" : "https:\/\/niinumatoshitaka.github.io.\/posts\/run-jenkins-jobs-on-agent\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/niinumatoshitaka.github.io.\/",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/niinumatoshitaka.github.io.\/",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Jenkinsのジョブを別のマシンで実行する" />
+<meta property="og:description" content="この記事では，Jenkinsエージェントを使用して，Jenkinsをインストールしたマシンとは別のマシンでジョブを実行する手順を説明します。">
+<meta property="og:url" content="https://niinumatoshitaka.github.io./posts/run-jenkins-jobs-on-agent/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="備忘録" />
+
+  <meta name="twitter:title" content="Jenkinsのジョブを別のマシンで実行する" />
+  <meta name="twitter:description" content="この記事では，Jenkinsエージェントを使用して，Jenkinsをインストールしたマシンとは別のマシンでジョブを実行する手順を説明します。">
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="generator" content="Hugo 0.107.0">
+  <link rel="alternate" href="https://niinumatoshitaka.github.io./index.xml" type="application/rss+xml" title="備忘録"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><link rel="stylesheet" href="https://niinumatoshitaka.github.io./css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://niinumatoshitaka.github.io./css/highlight.min.css" /><link rel="stylesheet" href="https://niinumatoshitaka.github.io./css/codeblock.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+    <style type="text/css">
+       
+      a.link{
+          display: block;
+          padding-top: 100px;
+          margin-top: -100px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">メニューを切り替え</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://niinumatoshitaka.github.io./">備忘録</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="タグ一覧" href="/tags">タグ一覧</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    
+
+  </div>
+</nav>
+
+
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="posts-heading">
+              
+                <h1>Jenkinsのジョブを別のマシンで実行する</h1>
+              
+              
+                <hr class="small">
+              
+              
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+
+        <h2>目次</h2>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#_用語解説">1. 用語解説</a></li>
+    <li><a href="#_環境">2. 環境</a>
+      <ul>
+        <li><a href="#_ソフトウェア">2.1. ソフトウェア</a></li>
+        <li><a href="#_ネットワーク構成">2.2. ネットワーク構成</a></li>
+        <li><a href="#_docker関連ファイル">2.3. Docker関連ファイル</a></li>
+        <li><a href="#python-code">2.4. Pythonコード</a></li>
+      </ul>
+    </li>
+    <li><a href="#_コントローラを起動">3. コントローラを起動</a>
+      <ul>
+        <li><a href="#_コンテナを起動">3.1. コンテナを起動</a></li>
+        <li><a href="#_管理者パスワードを入力">3.2. 管理者パスワードを入力</a></li>
+        <li><a href="#_プラグインをインストール">3.3. プラグインをインストール</a></li>
+        <li><a href="#_管理者ユーザを作成">3.4. 管理者ユーザを作成</a></li>
+        <li><a href="#_インスタンスの設定">3.5. インスタンスの設定</a></li>
+      </ul>
+    </li>
+    <li><a href="#_プラグインをインストール_2">4. プラグインをインストール</a></li>
+    <li><a href="#add-node">5. ノードを追加</a></li>
+    <li><a href="#_エージェントを起動">6. エージェントを起動</a>
+      <ul>
+        <li><a href="#build-agent-image">6.1. イメージをビルド</a></li>
+        <li><a href="#_コンテナを起動_2">6.2. コンテナを起動</a></li>
+      </ul>
+    </li>
+    <li><a href="#create-job">7. ジョブを作成</a></li>
+    <li><a href="#_ジョブを実行">8. ジョブを実行</a></li>
+    <li><a href="#_参考文献">参考文献</a></li>
+  </ul>
+</nav>
+
+        
+<div class="paragraph">
+<p>この記事では，Jenkinsエージェントを使用して，Jenkinsをインストールしたマシンとは別のマシンでジョブを実行する手順を説明します。
+ジョブの例として，Pythonの単体テストをJenkinsで実行します。</p>
+</div>
+<div class="sect1">
+<h2 id="_用語解説"><a class="link" href="#_用語解説">1. 用語解説</a></h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1">コントローラ</dt>
+<dd>
+<p>Jenkinsのサービス自体を指す。</p>
+</dd>
+<dt class="hdlist1">エージェント</dt>
+<dd>
+<p>コントローラの代わりにジョブを実行するプログラム。</p>
+</dd>
+<dt class="hdlist1">ノード</dt>
+<dd>
+<p>コントローラやエージェントを実行するマシン。</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_環境"><a class="link" href="#_環境">2. 環境</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_ソフトウェア"><a class="link" href="#_ソフトウェア">2.1. ソフトウェア</a></h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">OS</dt>
+<dd>
+<p>Windows 10 Home 21H2</p>
+</dd>
+<dt class="hdlist1">WSL</dt>
+<dd>
+<p>Ubuntu 18.04.6 LTS</p>
+</dd>
+<dt class="hdlist1">Docker</dt>
+<dd>
+<p>Docker Desktop 4.12.0</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ネットワーク構成"><a class="link" href="#_ネットワーク構成">2.2. ネットワーク構成</a></h3>
+<div class="paragraph">
+<p>この記事では，コントローラとエージェントが異なるノードで実行されることを想定します。
+簡単のため，それぞれのノードをDockerコンテナとして作成します。</p>
+</div>
+<div class="paragraph">
+<p>各ノードのネットワーク構成は下図のとおりです。</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnIHN0YW5kYWxvbmU9J25vJz8+PHN2ZyBjb250ZW50U3R5bGVUeXBlPSd0ZXh0L2NzcycgaGVpZ2h0PSczODZweCcgcHJlc2VydmVBc3BlY3RSYXRpbz0nbm9uZScgc3R5bGU9J3dpZHRoOjQzN3B4O2hlaWdodDozODZweDtiYWNrZ3JvdW5kOiNGRkZGRkY7JyB2ZXJzaW9uPScxLjEnIHZpZXdCb3g9JzAgMCA0MzcgMzg2JyB3aWR0aD0nNDM3cHgnIHhtbG5zOnhsaW5rPSdodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHpvb21BbmRQYW49J21hZ25pZnknPjxkZWZzLz48Zz48ZyBpZD0nY2x1c3Rlcl9Eb2NrZXInPjxyZWN0IGZpbGw9J25vbmUnIGhlaWdodD0nMjc4JyByeD0nMi41JyByeT0nMi41JyBzdHlsZT0nc3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsnIHdpZHRoPSc0MjQnIHg9JzcnIHk9JzEwMicvPjx0ZXh0IGZpbGw9JyMwMDAwMDAnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyBmb250LXNpemU9JzE0JyBmb250LXdlaWdodD0nYm9sZCcgbGVuZ3RoQWRqdXN0PSdzcGFjaW5nJyB0ZXh0TGVuZ3RoPSc0OS42MjUnIHg9JzE5NC4xODc1JyB5PScxMTYuMzE4NCc+RG9ja2VyPC90ZXh0PjwvZz48ZyBpZD0nY2x1c3Rlcl9tYXN0ZXLjg47jg7zjg4njgrPjg7Pjg4bjg4onPjxyZWN0IGZpbGw9J25vbmUnIGhlaWdodD0nODMnIHJ4PScyLjUnIHJ5PScyLjUnIHN0eWxlPSdzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOycgd2lkdGg9JzE4MicgeD0nNjInIHk9JzI3MycvPjx0ZXh0IGZpbGw9JyMwMDAwMDAnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyBmb250LXNpemU9JzE0JyBmb250LXdlaWdodD0nYm9sZCcgbGVuZ3RoQWRqdXN0PSdzcGFjaW5nJyB0ZXh0TGVuZ3RoPScxNDcuNjg3NScgeD0nNzkuMTU2MycgeT0nMjg3LjMxODQnPm1hc3RlcuODjuODvOODieOCs+ODs+ODhuODijwvdGV4dD48L2c+PGcgaWQ9J2NsdXN0ZXJf44OG44K544OI44OO44O844OJ44Kz44Oz44OG44OKJz48cmVjdCBmaWxsPSdub25lJyBoZWlnaHQ9JzgzJyByeD0nMi41JyByeT0nMi41JyBzdHlsZT0nc3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsnIHdpZHRoPSczNzYnIHg9JzMxJyB5PScxNDMnLz48dGV4dCBmaWxsPScjMDAwMDAwJyBmb250LWZhbWlseT0nc2Fucy1zZXJpZicgZm9udC1zaXplPScxNCcgZm9udC13ZWlnaHQ9J2JvbGQnIGxlbmd0aEFkanVzdD0nc3BhY2luZycgdGV4dExlbmd0aD0nMTQ0LjM3NScgeD0nMTQ2LjgxMjUnIHk9JzE1Ny4zMTg0Jz7jg4bjgrnjg4jjg47jg7zjg4njgrPjg7Pjg4bjg4o8L3RleHQ+PC9nPjxnIGlkPSdlbGVtX2NvbnRyb2xsZXInPjxyZWN0IGZpbGw9JyNGMUYxRjEnIGhlaWdodD0nMzQnIHJ4PScyLjUnIHJ5PScyLjUnIHN0eWxlPSdzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41Oycgd2lkdGg9JzE1MCcgeD0nNzgnIHk9JzMwNicvPjx0ZXh0IGZpbGw9JyMwMDAwMDAnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyBmb250LXNpemU9JzE0JyBsZW5ndGhBZGp1c3Q9J3NwYWNpbmcnIHRleHRMZW5ndGg9JzEzMCcgeD0nODgnIHk9JzMyOC4zMTg0Jz5KZW5raW5z44Kz44Oz44OI44Ot44O844OpPC90ZXh0PjwvZz48ZyBpZD0nZWxlbV9hZ2VudCc+PHJlY3QgZmlsbD0nI0YxRjFGMScgaGVpZ2h0PSczNCcgcng9JzIuNScgcnk9JzIuNScgc3R5bGU9J3N0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7JyB3aWR0aD0nMTUwJyB4PSc0NycgeT0nMTc2Jy8+PHRleHQgZmlsbD0nIzAwMDAwMCcgZm9udC1mYW1pbHk9J3NhbnMtc2VyaWYnIGZvbnQtc2l6ZT0nMTQnIGxlbmd0aEFkanVzdD0nc3BhY2luZycgdGV4dExlbmd0aD0nMTMwJyB4PSc1NycgeT0nMTk4LjMxODQnPkplbmtpbnPjgqjjg7zjgrjjgqfjg7Pjg4g8L3RleHQ+PC9nPjxnIGlkPSdlbGVtX3B5dGhvbic+PHJlY3QgZmlsbD0nI0YxRjFGMScgaGVpZ2h0PSczNCcgcng9JzIuNScgcnk9JzIuNScgc3R5bGU9J3N0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7JyB3aWR0aD0nNjYnIHg9JzMyNScgeT0nMTc2Jy8+PHRleHQgZmlsbD0nIzAwMDAwMCcgZm9udC1mYW1pbHk9J3NhbnMtc2VyaWYnIGZvbnQtc2l6ZT0nMTQnIGxlbmd0aEFkanVzdD0nc3BhY2luZycgdGV4dExlbmd0aD0nNDYnIHg9JzMzNScgeT0nMTk4LjMxODQnPlB5dGhvbjwvdGV4dD48L2c+PGcgaWQ9J2VsZW1fcmVwbyc+PHJlY3QgZmlsbD0nI0YxRjFGMScgaGVpZ2h0PSczNCcgcng9JzIuNScgcnk9JzIuNScgc3R5bGU9J3N0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7JyB3aWR0aD0nMTY2JyB4PSczOScgeT0nNycvPjx0ZXh0IGZpbGw9JyMwMDAwMDAnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyBmb250LXNpemU9JzE0JyBsZW5ndGhBZGp1c3Q9J3NwYWNpbmcnIHRleHRMZW5ndGg9JzE0NicgeD0nNDknIHk9JzI5LjMxODQnPkdpdOODquODouODvOODiOODquODneOCuOODiOODqjwvdGV4dD48L2c+PGcgaWQ9J2xpbmtfY29udHJvbGxlcl9hZ2VudCc+PHBhdGggZD0nTTE1My4wMSwzMDUuNzYgQzE1Mi42NSwyODkuMzggMTUxLjAzLDI2My41IDE0NSwyNDIgQzE0Mi40NCwyMzIuODYgMTM4LjIzLDIyMy4zMyAxMzQuMTEsMjE1LjIgJyBmaWxsPSdub25lJyBpZD0nY29udHJvbGxlci10by1hZ2VudCcgc3R5bGU9J3N0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Jy8+PHBvbHlnb24gZmlsbD0nIzE4MTgxOCcgcG9pbnRzPScxMzEuNTcsMjEwLjMyLDEzMi4xODAzLDIyMC4xNDk5LDEzMy44Nzk5LDIxNC43NTQ0LDEzOS4yNzU0LDIxNi40NTQxLDEzMS41NywyMTAuMzInIHN0eWxlPSdzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOycvPjx0ZXh0IGZpbGw9JyMwMDAwMDAnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyBmb250LXNpemU9JzEzJyBsZW5ndGhBZGp1c3Q9J3NwYWNpbmcnIHRleHRMZW5ndGg9JzExNycgeD0nMTQ5JyB5PScyNTQuNDM4NSc+44K444On44OW44Gu5a6f6KGM44KS5oyH56S6PC90ZXh0PjwvZz48ZyBpZD0nbGlua19hZ2VudF9jb250cm9sbGVyJz48cGF0aCBkPSdNMTAxLjYxLDIxMC4xMyBDODguNjgsMjIyLjQ2IDc1LjY1LDI0MC4xNCA4MywyNTcgQzkxLjE4LDI3NS43NiAxMDcuNzQsMjkxLjU0IDEyMi43LDMwMi44NSAnIGZpbGw9J25vbmUnIGlkPSdhZ2VudC10by1jb250cm9sbGVyJyBzdHlsZT0nc3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsnLz48cG9seWdvbiBmaWxsPScjMTgxODE4JyBwb2ludHM9JzEyNi44NywzMDUuOTIsMTIyLjAwMTQsMjk3LjM1ODYsMTIyLjg0NjIsMzAyLjk1MjEsMTE3LjI1MjcsMzAzLjc5NjgsMTI2Ljg3LDMwNS45Micgc3R5bGU9J3N0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Jy8+PHRleHQgZmlsbD0nIzAwMDAwMCcgZm9udC1mYW1pbHk9J3NhbnMtc2VyaWYnIGZvbnQtc2l6ZT0nMTMnIGxlbmd0aEFkanVzdD0nc3BhY2luZycgdGV4dExlbmd0aD0nNTInIHg9Jzg0JyB5PScyNTQuNDM4NSc+5a6f6KGM57WQ5p6cPC90ZXh0PjwvZz48ZyBpZD0nbGlua19yZXBvX2FnZW50Jz48cGF0aCBkPSdNMTIyLDQxLjAxIEMxMjIsNzEuMjMgMTIyLDEzNi42OSAxMjIsMTcwLjYyICcgZmlsbD0nbm9uZScgaWQ9J3JlcG8tdG8tYWdlbnQnIHN0eWxlPSdzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOycvPjxwb2x5Z29uIGZpbGw9JyMxODE4MTgnIHBvaW50cz0nMTIyLDE3NS43OSwxMjYsMTY2Ljc5LDEyMiwxNzAuNzksMTE4LDE2Ni43OSwxMjIsMTc1Ljc5JyBzdHlsZT0nc3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsnLz48dGV4dCBmaWxsPScjMDAwMDAwJyBmb250LWZhbWlseT0nc2Fucy1zZXJpZicgZm9udC1zaXplPScxMycgbGVuZ3RoQWRqdXN0PSdzcGFjaW5nJyB0ZXh0TGVuZ3RoPScyNCcgeD0nMTIzJyB5PSc4My40Mzg1Jz5wdWxsPC90ZXh0PjwvZz48ZyBpZD0nbGlua19hZ2VudF9weXRob24nPjxwYXRoIGQ9J00xOTcuMzIsMTkzIEMyMzguMDQsMTkzIDI4Ni41OSwxOTMgMzE5LjU5LDE5MyAnIGZpbGw9J25vbmUnIGlkPSdhZ2VudC10by1weXRob24nIHN0eWxlPSdzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOycvPjxwb2x5Z29uIGZpbGw9JyMxODE4MTgnIHBvaW50cz0nMzI0Ljc1LDE5MywzMTUuNzUsMTg5LDMxOS43NSwxOTMsMzE1Ljc1LDE5NywzMjQuNzUsMTkzJyBzdHlsZT0nc3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsnLz48dGV4dCBmaWxsPScjMDAwMDAwJyBmb250LWZhbWlseT0nc2Fucy1zZXJpZicgZm9udC1zaXplPScxMycgbGVuZ3RoQWRqdXN0PSdzcGFjaW5nJyB0ZXh0TGVuZ3RoPSc5MScgeD0nMjE1LjUnIHk9JzE4Ny40Mzg1Jz7ljZjkvZPjg4bjgrnjg4jlrp/ooYw8L3RleHQ+PC9nPjwvZz48L3N2Zz4=" alt="Diagram" width="437" height="386"/>
+</div>
+<div class="title">図 1. ネットワーク構成</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_docker関連ファイル"><a class="link" href="#_docker関連ファイル">2.3. Docker関連ファイル</a></h3>
+<div class="paragraph">
+<p>この記事で使用するDocker関連ファイルの構成は次のとおりです。</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>.
+├── agent
+│   └── Dockerfile
+└── controller
+    ├── .env
+    └── docker-compose.yml</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>コントローラとエージェントの環境は以下のファイルで作成します。</p>
+</div>
+<div class="listingblock">
+<div class="title">コントローラ(<code>controller/docker-compose.yml</code>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yml hljs" data-lang="yml">version: &#34;3&#34;
+services:
+  controller:
+    container_name: jenkins-controller
+    image: jenkins/jenkins:2.383-jdk11
+    ports:
+      - 8080:8080
+    volumes:
+      - jenkins_home:/var/jenkins_home
+volumes:
+  jenkins_home:</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title"><code>controller/.env</code></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">COMPOSE_PROJECT_NAME=jenkins</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">エージェント(<code>agent/Dockerfile</code>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-dockerfile hljs" data-lang="dockerfile">FROM jenkins/inbound-agent:4.10-3-jdk11
+# ベースイメージが&#34;jenkins&#34;ユーザで実行されるため，
+# パッケージをインストールするために&#34;root&#34;ユーザに切り替え
+USER root
+# Pythonをインストール
+RUN apt-get update &amp;&amp; apt-get install -y python3
+USER jenkins</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="python-code"><a class="link" href="#python-code">2.4. Pythonコード</a></h3>
+<div class="paragraph">
+<p>Gitのリモートリポジトリの <code>main</code> ブランチに以下のソースコードが事前にpushされているものとします。</p>
+</div>
+<div class="literalblock">
+<div class="title">ファイル構成</div>
+<div class="content">
+<pre>.
+├── main.py
+└── test.py</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">main.py</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">def add(a: int, b: int) -&gt; int:
+    return a + b</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">test.py</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">import unittest
+import main
+
+class TestArithmeticMethods(unittest.TestCase):
+    def test_add(self):
+        self.assertEqual(main.add(2, 3), 5)</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_コントローラを起動"><a class="link" href="#_コントローラを起動">3. コントローラを起動</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_コンテナを起動"><a class="link" href="#_コンテナを起動">3.1. コンテナを起動</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd controller
+docker compose up --detach</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Webブラウザで <a href="http://localhost:8080/" class="bare">http://localhost:8080/</a> にアクセスします。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_管理者パスワードを入力"><a class="link" href="#_管理者パスワードを入力">3.2. 管理者パスワードを入力</a></h3>
+<div class="paragraph">
+<p>&#34;Unlock Jenkins&#34;画面で <em>Administrator password</em> を要求されます。
+以下のコマンドで管理者パスワードを取得して入力します。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker exec -it jenkins-controller cat /var/jenkins_home/secrets/initialAdminPassword</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_プラグインをインストール"><a class="link" href="#_プラグインをインストール">3.3. プラグインをインストール</a></h3>
+<div class="paragraph">
+<p>&#34;Customize Jenkins&#34;画面でプラグインをインストールするか尋ねられます。</p>
+</div>
+<div class="paragraph">
+<p>この段階ではまだプラグインをインストールしないので， <em>Select plugins to install</em> を選択します。</p>
+</div>
+<div class="paragraph">
+<p><em>None</em> を選択して <b class="button">Install</b> を押します。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_管理者ユーザを作成"><a class="link" href="#_管理者ユーザを作成">3.4. 管理者ユーザを作成</a></h3>
+<div class="paragraph">
+<p>&#34;Create First Admin User&#34;画面で管理者ユーザをよしなに作成します。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_インスタンスの設定"><a class="link" href="#_インスタンスの設定">3.5. インスタンスの設定</a></h3>
+<div class="paragraph">
+<p>&#34;Instance Configuration&#34;画面の <em>Jenkins URL:</em> にはデフォルトで <code>http://localhost:8080/</code> が入力されているので，そのまま <b class="button">Save and Finish</b> を押します。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_プラグインをインストール_2"><a class="link" href="#_プラグインをインストール_2">4. プラグインをインストール</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Jenkinsに以下のプラグインをインストールします。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://plugins.jenkins.io/git">Git</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Gitリポジトリからソースコードを取得するために使用します</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://plugins.jenkins.io/instance-identity/">instance-identity</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p>エージェントがコントローラと通信するために使用します</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>プラグインをインストールする手順は次のとおりです。</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>ダッシュボード画面 → Jenkinsの管理 → プラグインの管理 を選択</p>
+</li>
+<li>
+<p>Available plugins を選択</p>
+</li>
+<li>
+<p>検索バーにプラグイン名と入力</p>
+</li>
+<li>
+<p>ヒットしたプラグインにチェックを入れる</p>
+</li>
+<li>
+<p><b class="button">Download now and install after restart</b> を押す</p>
+</li>
+<li>
+<p>&#34;Download progress&#34;画面に遷移するので，インストールが完了するまで待つ</p>
+</li>
+<li>
+<p>プラグインのインストール完了後，以下のコマンドでJenkinsを再起動</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker compose -p jenkins restart</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="add-node"><a class="link" href="#add-node">5. ノードを追加</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>コントローラにノードを追加します。</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>ダッシュボード画面 → &#34;Jenkinsの管理&#34; → &#34;ノードの管理&#34;を選択</p>
+</li>
+<li>
+<p><b class="button">New Node</b> を押す</p>
+</li>
+<li>
+<p>ノード名に <code>test-node</code> と入力し，Typeに <em>Permanent Agent</em> を選択して <b class="button">Create</b></p>
+</li>
+<li>
+<p>以下のとおり設定して <b class="button">保存</b></p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">リモートFSルート</dt>
+<dd>
+<p><code>/home/jenkins/agent</code></p>
+</dd>
+<dt class="hdlist1">ラベル</dt>
+<dd>
+<p>python-agent</p>
+</dd>
+<dt class="hdlist1">用途</dt>
+<dd>
+<p>このマシーンを特定ジョブ専用にする</p>
+</dd>
+<dt class="hdlist1">起動方法</dt>
+<dd>
+<p>Launch agent by connecting it to the controller</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Use Websocket</dt>
+<dd>
+<p>有効</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">可用性</dt>
+<dd>
+<p>Keep this agent online as much as possible</p>
+</dd>
+</dl>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_エージェントを起動"><a class="link" href="#_エージェントを起動">6. エージェントを起動</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="build-agent-image"><a class="link" href="#build-agent-image">6.1. イメージをビルド</a></h3>
+<div class="paragraph">
+<p>エージェントプログラム(<code>agent.jar</code>)がインストールされているイメージをベースに，Pythonをインストールしたイメージをビルドします。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cd agent
+docker build --tag python-agent .</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_コンテナを起動_2"><a class="link" href="#_コンテナを起動_2">6.2. コンテナを起動</a></h3>
+<div class="paragraph">
+<p>エージェントのコンテナを起動します。
+以下のコマンドを実行します。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">export JENKINS_SECRET=642c54461e3bf3a590006b2064d9b9fbd472c9461178bb5a30bd0144b9b9d515 #<b class="conum">(1)</b>
+export AGENT_NAME=test-node #<b class="conum">(2)</b>
+
+docker run --rm \
+    --net=jenkins_default \ #<b class="conum">(3)</b>
+    --init \
+    python-agent \ #<b class="conum">(4)</b>
+        -url http://jenkins-controller:8080 \ #<b class="conum">(5)</b>
+        -workDir=/home/jenkins/agent \ #<b class="conum">(6)</b>
+        $JENKINS_SECRET $AGENT_NAME</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>この値は以下の手順で取得します。</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>ダッシュボード画面 → Jenkinsの管理 → ノードの管理 を選択</p>
+</li>
+<li>
+<p><a href="#add-node">ノードを追加</a>で追加したノードを選択</p>
+</li>
+<li>
+<p><em>Run from agent command line:</em> のコマンドの中で <code>-secret</code> で指定されている値を使用する</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><a href="#add-node">ノードを追加</a>で指定したノード名を指定します。</p>
+</li>
+<li>
+<p>エージェントのコンテナがコントローラのコンテナと通信できるように，コントローラ側でデフォルトで作成されているネットワークに接続します。</p>
+</li>
+<li>
+<p><a href="#build-agent-image">イメージをビルド</a>でビルドしたイメージを使用します。</p>
+</li>
+<li>
+<p>コントローラで公開しているJenkinsのURLを指定します。エージェントのコンテナとコントローラのコンテナは同一のDockerネットワークに接続しているため， <code>http://&lt;コンテナ名&gt;:&lt;ポート番号&gt;</code> でアクセスできます。</p>
+</li>
+<li>
+<p><a href="#add-node">ノードを追加</a>で指定した&#34;リモートFSルート&#34;の値を指定します。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>ダッシュボード画面 → &#34;Jenkinsの管理&#34; → &#34;ノードの管理&#34;を選択します。
+&#34;ビルド実行状態&#34;で <code>test-node</code> が&#34;待機中&#34;になっていれば，エージェントがコントローラに接続できています。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="create-job"><a class="link" href="#create-job">7. ジョブを作成</a></h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>ダッシュボード画面 → &#34;新規ジョブ作成&#34;を選択</p>
+</li>
+<li>
+<p>ジョブ名に <code>test-job</code> を指定して <b class="button">OK</b></p>
+</li>
+<li>
+<p>以下のとおり設定</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">General</dt>
+<dd>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">実行するノードを制限</dt>
+<dd>
+<p>有効</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">ラベル式</dt>
+<dd>
+<p><a href="#add-node">ノードを追加</a>で指定したノード名</p>
+</dd>
+</dl>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">ソースコード管理</dt>
+<dd>
+<p>Git</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">リポジトリURL</dt>
+<dd>
+<p><a href="#python-code">Pythonコード</a>のURL</p>
+</dd>
+<dt class="hdlist1">ビルドするブランチ</dt>
+<dd>
+<p><code>main</code></p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">Build Steps</dt>
+<dd>
+<p>シェルの実行</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">シェルスクリプト</dt>
+<dd>
+<p><code>python3 -m unittest -v test.py</code></p>
+</dd>
+</dl>
+</div>
+</dd>
+</dl>
+</div>
+</li>
+<li>
+<p><b class="button">保存</b></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ジョブを実行"><a class="link" href="#_ジョブを実行">8. ジョブを実行</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="#create-job">ジョブを作成</a>で作成したジョブのページを開き，&#34;ビルド実行&#34;を選択します。</p>
+</div>
+<div class="paragraph">
+<p>ジョブ作成時に&#34;シェルスクリプト&#34;でPythonの単体テストを実行するコマンドを指定したので，このコマンドが実行されます。</p>
+</div>
+<div class="paragraph">
+<p>単体テストの実行結果は&#34;ビルド履歴&#34;の&#34;コンソール出力&#34;から確認できます。
+出力例は以下のとおりです。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">Started by user administrator
+Running as SYSTEM
+Building remotely on test-node (python-agent) in workspace /home/jenkins/agent/workspace/test-job
+The recommended git tool is: NONE
+No credentials specified
+ &gt; git rev-parse --resolve-git-dir /home/jenkins/agent/workspace/test-job/.git # timeout=10
+Fetching changes from the remote Git repository
+ &gt; git config remote.origin.url &lt;GitのリモートリポジトリのURL&gt; # timeout=10
+Fetching upstream changes from &lt;GitのリモートリポジトリのURL&gt;
+ &gt; git --version # timeout=10
+ &gt; git --version # &#39;git version 2.30.2&#39;
+ &gt; git fetch --tags --force --progress -- &lt;GitのリモートリポジトリのURL&gt; +refs/heads/*:refs/remotes/origin/* # timeout=10
+ &gt; git rev-parse origin/main^{commit} # timeout=10
+Checking out Revision 0b54f13e7552752adbf6227a3f35d289716ddb74 (origin/main)
+ &gt; git config core.sparsecheckout # timeout=10
+ &gt; git checkout -f 0b54f13e7552752adbf6227a3f35d289716ddb74 # timeout=10
+Commit message: &#34;initial commit&#34;
+ &gt; git rev-list --no-walk 0b54f13e7552752adbf6227a3f35d289716ddb74 # timeout=10
+[test-job] $ /bin/sh -xe /tmp/jenkins17643066538376113560.sh
++ python3 -m unittest -v test.py
+test_add (test.TestArithmeticMethods) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+Finished: SUCCESS</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>上記の出力では，1件のテストが実行され，成功したことがわかります。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考文献"><a class="link" href="#_参考文献">参考文献</a></h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="https://cloudbees.techmatrix.jp/blog/struggle-story-about-ci-5/">【CI奮闘記】第5章：コントローラー？エグゼキューター？エージェント？» CloudBees|テクマトリックス</a></p>
+</li>
+<li>
+<p><a href="https://cloudbees.techmatrix.jp/blog/struggle-story-about-ci-6/">【CI奮闘記】第6章：エージェントを作ってみよう！» CloudBees|テクマトリックス</a></p>
+</li>
+<li>
+<p><a href="https://www.jenkins.io/doc/book/glossary/" class="bare">https://www.jenkins.io/doc/book/glossary/</a></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://niinumatoshitaka.github.io.//tags/jenkins/">Jenkins</a>&nbsp;
+            
+              <a href="https://niinumatoshitaka.github.io.//tags/docker/">Docker</a>&nbsp;
+            
+          </div>
+        
+
+        
+
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://niinumatoshitaka.github.io./posts/draw-diagram-in-asciidoc-using-kroki/" data-toggle="tooltip" data-placement="top" title="Krokiを利用してAsciiDocファイルに図を記述する">&larr; 前ページ</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+
+          &nbsp;&bull;&nbsp;&copy;
+          
+            2022
+          
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://niinumatoshitaka.github.io./">備忘録</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          起動力に<a href="https://gohugo.io">Hugo v0.107.0</a> &nbsp;&bull;&nbsp; テーマに<a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>に基づいている<a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer><script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script src="https://niinumatoshitaka.github.io./js/main.js"></script>
+<script src="https://niinumatoshitaka.github.io./js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script><script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script><script src="https://niinumatoshitaka.github.io./js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+
+
+    
+  </body>
+</html>

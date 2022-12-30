@@ -58,7 +58,7 @@
   "headline": "Krokiを利用してAsciiDocファイルに図を記述する",
   "description" : "この記事では，AsciiDocファイルに図を記述し，Krokiを利用して図が埋め込まれたHTMLファイルを生成する手順を説明します。 図の生成",
   "inLanguage" : "ja",
-  "wordCount":  2362 ,
+  "wordCount":  2372 ,
   "datePublished" : "2022-12-10T00:00:00",
   "dateModified" : "2022-12-10T00:00:00",
   "image" : "https:\/\/niinumatoshitaka.github.io.\/",
@@ -94,6 +94,14 @@
   <link rel="stylesheet" href="https://niinumatoshitaka.github.io./css/highlight.min.css" /><link rel="stylesheet" href="https://niinumatoshitaka.github.io./css/codeblock.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
 
+    <style type="text/css">
+       
+      a.link{
+          display: block;
+          padding-top: 100px;
+          margin-top: -100px;
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
@@ -224,19 +232,19 @@
 
         <h2>目次</h2>
         <nav id="TableOfContents">
-  <ol>
-    <li><a href="#_環境">環境</a></li>
-    <li><a href="#_ファイル構成">ファイル構成</a></li>
-    <li><a href="#_wslでフォルダを開く">WSLでフォルダを開く</a></li>
-    <li><a href="#_vscodeに拡張機能をインストール">vscodeに拡張機能をインストール</a></li>
-    <li><a href="#_asciidoc拡張機能を設定">AsciiDoc拡張機能を設定</a></li>
-    <li><a href="#_krokiサーバを起動するdocker_composeファイルを作成">Krokiサーバを起動するDocker Composeファイルを作成</a></li>
-    <li><a href="#_vscodeでフォルダを開いたときに自動的にkrokiサーバを起動する">vscodeでフォルダを開いたときに自動的にKrokiサーバを起動する</a></li>
-    <li><a href="#_asciidocファイルを作成">AsciiDocファイルを作成</a></li>
-    <li><a href="#_asciidocファイルのプレビューを表示">AsciiDocファイルのプレビューを表示</a></li>
-    <li><a href="#_asciidocファイルをhtmlファイルに変換">AsciiDocファイルをHTMLファイルに変換</a></li>
+  <ul>
+    <li><a href="#_環境">1. 環境</a></li>
+    <li><a href="#_ファイル構成">2. ファイル構成</a></li>
+    <li><a href="#_wslでフォルダを開く">3. WSLでフォルダを開く</a></li>
+    <li><a href="#_vscodeに拡張機能をインストール">4. vscodeに拡張機能をインストール</a></li>
+    <li><a href="#_asciidoc拡張機能を設定">5. AsciiDoc拡張機能を設定</a></li>
+    <li><a href="#_krokiサーバを起動するdocker_composeファイルを作成">6. Krokiサーバを起動するDocker Composeファイルを作成</a></li>
+    <li><a href="#_vscodeでフォルダを開いたときに自動的にkrokiサーバを起動する">7. vscodeでフォルダを開いたときに自動的にKrokiサーバを起動する</a></li>
+    <li><a href="#_asciidocファイルを作成">8. AsciiDocファイルを作成</a></li>
+    <li><a href="#_asciidocファイルのプレビューを表示">9. AsciiDocファイルのプレビューを表示</a></li>
+    <li><a href="#_asciidocファイルをhtmlファイルに変換">10. AsciiDocファイルをHTMLファイルに変換</a></li>
     <li><a href="#_参考文献">参考文献</a></li>
-  </ol>
+  </ul>
 </nav>
 
         
@@ -245,7 +253,7 @@
 図の生成にはKrokiのDockerコンテナを使用するため，vscodeのタスク機能を利用して，フォルダを開いたときにコンテナを自動的に起動するよう設定します。</p>
 </div>
 <div class="sect1">
-<h2 id="_環境">環境</h2>
+<h2 id="_環境"><a class="link" href="#_環境">1. 環境</a></h2>
 <div class="sectionbody">
 <div class="dlist">
 <dl>
@@ -270,7 +278,7 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_ファイル構成">ファイル構成</h2>
+<h2 id="_ファイル構成"><a class="link" href="#_ファイル構成">2. ファイル構成</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Cドライブの直下に作成した<code>doc</code>フォルダ内に，この記事で使用するファイルを配置します。
@@ -290,7 +298,7 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_wslでフォルダを開く">WSLでフォルダを開く</h2>
+<h2 id="_wslでフォルダを開く"><a class="link" href="#_wslでフォルダを開く">3. WSLでフォルダを開く</a></h2>
 <div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
@@ -308,7 +316,7 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_vscodeに拡張機能をインストール">vscodeに拡張機能をインストール</h2>
+<h2 id="_vscodeに拡張機能をインストール"><a class="link" href="#_vscodeに拡張機能をインストール">4. vscodeに拡張機能をインストール</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>vscodeの拡張機能タブから，以下の拡張機能をインストールします。</p>
@@ -326,7 +334,7 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_asciidoc拡張機能を設定">AsciiDoc拡張機能を設定</h2>
+<h2 id="_asciidoc拡張機能を設定"><a class="link" href="#_asciidoc拡張機能を設定">5. AsciiDoc拡張機能を設定</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>KrokiはPlantUMLやMermaidなど様々な形式のテキストから図を生成するサーバアプリケーションです。</p>
@@ -356,7 +364,7 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_krokiサーバを起動するdocker_composeファイルを作成">Krokiサーバを起動するDocker Composeファイルを作成</h2>
+<h2 id="_krokiサーバを起動するdocker_composeファイルを作成"><a class="link" href="#_krokiサーバを起動するdocker_composeファイルを作成">6. Krokiサーバを起動するDocker Composeファイルを作成</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>KrokiサーバはDockerコンテナとして実行します。
@@ -389,7 +397,7 @@ services:
 </div>
 </div>
 <div class="sect1">
-<h2 id="_vscodeでフォルダを開いたときに自動的にkrokiサーバを起動する">vscodeでフォルダを開いたときに自動的にKrokiサーバを起動する</h2>
+<h2 id="_vscodeでフォルダを開いたときに自動的にkrokiサーバを起動する"><a class="link" href="#_vscodeでフォルダを開いたときに自動的にkrokiサーバを起動する">7. vscodeでフォルダを開いたときに自動的にKrokiサーバを起動する</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>vscodeでAsciiDocファイルを格納したフォルダを開いたときに自動的にKrokiサーバが起動すると便利なので，<code>.vscode/tasks.json</code><a href="#tasks-in-vscode">[3]</a><a href="#docker-compose-task-in-vscode">[4]</a>に以下を記述します。</p>
@@ -448,7 +456,7 @@ services:
 </div>
 </div>
 <div class="sect1">
-<h2 id="_asciidocファイルを作成">AsciiDocファイルを作成</h2>
+<h2 id="_asciidocファイルを作成"><a class="link" href="#_asciidocファイルを作成">8. AsciiDocファイルを作成</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>AsciiDocファイルにPlantUMLとMermaidの図を埋め込むには，以下のように記述します。</p>
@@ -483,7 +491,7 @@ sequenceDiagram
 </div>
 </div>
 <div class="sect1">
-<h2 id="_asciidocファイルのプレビューを表示">AsciiDocファイルのプレビューを表示</h2>
+<h2 id="_asciidocファイルのプレビューを表示"><a class="link" href="#_asciidocファイルのプレビューを表示">9. AsciiDocファイルのプレビューを表示</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>デフォルトではKrokiサーバのように外部から取得したデータをプレビューに埋め込むことはできないので，vscodeで<code>sample.adoc</code>のタブをアクティブにした状態で， <kbd>F1</kbd> → <em>AsciiDoc: Change Preview Security Settings</em> → <em>Allow insecure local content</em> を選択します。</p>
@@ -494,7 +502,7 @@ sequenceDiagram
 </div>
 </div>
 <div class="sect1">
-<h2 id="_asciidocファイルをhtmlファイルに変換">AsciiDocファイルをHTMLファイルに変換</h2>
+<h2 id="_asciidocファイルをhtmlファイルに変換"><a class="link" href="#_asciidocファイルをhtmlファイルに変換">10. AsciiDocファイルをHTMLファイルに変換</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><code>build.sh</code>として以下を作成します。</p>
@@ -550,7 +558,7 @@ docker run --rm -it \
 </div>
 </div>
 <div class="sect1">
-<h2 id="_参考文献">参考文献</h2>
+<h2 id="_参考文献"><a class="link" href="#_参考文献">参考文献</a></h2>
 <div class="sectionbody">
 <div class="ulist bibliography">
 <ul class="bibliography">
@@ -600,6 +608,10 @@ docker run --rm -it \
               <a href="https://niinumatoshitaka.github.io./posts/migrate-gitea-db-from-sqlite-to-postgres/" data-toggle="tooltip" data-placement="top" title="GiteaのデータベースをSQLiteからPostgreSQLに移行する">&larr; 前ページ</a>
             </li>
           
+          
+            <li class="next">
+              <a href="https://niinumatoshitaka.github.io./posts/run-jenkins-jobs-on-agent/" data-toggle="tooltip" data-placement="top" title="Jenkinsのジョブを別のマシンで実行する">次ページ &rarr;</a>
+            </li>
           
         </ul>
       
@@ -663,4 +675,3 @@ docker run --rm -it \
     
   </body>
 </html>
-
